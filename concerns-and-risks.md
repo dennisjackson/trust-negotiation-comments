@@ -2,15 +2,17 @@
 
 This document summarizes the key concerns and risks identified with the Trust Expressions and Trust Anchors proposals. Unless otherwise specified, the analysis in this document applies equally to the Trust Expressions and Trust Anchors proposals.
 
-The challenges around the proposed use cases for Trust Expressions and Trust Anchors are discussed in a companion document. Although that document identifies numerous issues with the proposed use cases, this analysis of the risks is based on the assumption that the designs would succeed and be widely adopted.
+The challenges around the proposed use cases for Trust Expressions and Trust Anchors are discussed in a [companion document](https://github.com/dennisjackson/trust-negotiation-comments/blob/main/comments-on-usecases.md). Although that analysis identifies numerous issues with the proposed use cases, this discussion of the risks is based on the assumption that the designs would succeed in their goals and be widely adopted.
 
-At a high level, both proposals introduce trust negotiation to TLS. Trust Expressions effectively boils down to a new user-agent string exposed in the TLS Client Hello that the server can use to guide certificate selection. Trust Anchors uses a DNS-based mechanism to allow the server to advertise its certificates and have the client choose one.
+## Summary
 
-This change from "one certificate fits all" to trust negotiation and a multi-certificate model may seem minor but has substantial consequences for the Web PKI ecosystem.
+At a high level, both proposals introduce trust negotiation to TLS. Trust Expressions effectively boils down to a new user-agent string exposed in the TLS Client Hello that the server can use to guide certificate selection. Trust Anchors uses a DNS-based mechanism to allow the server to advertise its certificates and have the client choose one. This change from "one certificate fits all" to trust negotiation and a multi-certificate model may seem minor but would have substantial consequences for the Web PKI.
+
+I believe the issues around root program divergence, fragmentation and client fingerprinting are serious and easy to foresee in the short term. The concerns around government abuse and mass surveillance are clearly more long term, but have a solid basis in recent events. It is a case of a feature designed with good intentions and described as-such by the authors, but which is ripe for exploitation by bad actors. Regrettably, governments are one type of organisation that are simultaneously most likely to establish root programs and also to abuse them for surveillance. 
 
 ## Divergence and Fragmentation
 
-The existing ecosystem effectively requires that websites identify a single certificate that is acceptable to all clients. This motivates root programs, which set the policies for their clients, to agree on a homogenous set of compatible requirements. This is done through the CA/Browser Forum (CABF) which has a consensus-based system for updating the requirements on certificates and CAs which requires approval by both certificate consumers (Root Programs) and certificate issuers (CAs).
+The existing ecosystem effectively requires that websites identify a single certificate that is acceptable to all clients. This motivates root programs, which set the policies for their clients, to agree on a homogenous set of compatible requirements. This is done through the [CA/Browser Forum](https://cabforum.org/) (CABF) which has a consensus-based system for updating the requirements on certificates and CAs which requires approval by both certificate consumers (Root Programs) and certificate issuers (CAs).
 
 Individual Root Programs can also unilaterally enforce their own rules, but in effect can only impose stricter requirements than the CABF, (e.g. requiring additional SCTs or shorter lifetime certificates). This creates a ratcheting effect, where some root programs introduce a new security requirement which eventually becomes an accepted baseline, benefiting the entire ecosystem.
 
@@ -20,7 +22,7 @@ This compromises the current ratcheting mechanism which has done so much to impr
 
 As well as losing this ratcheting effect between browsers, we would also lose the ratcheting effect that browsers exert on the wider TLS ecosystem, where browser security innovations and policies have 'trickled down' to other types of TLS clients. For example, in a world with ubiquitous Trust Expressions, there would have been much less pressure from browsers for device manufacturers to migrate away from the use of SHA-1 signatures. Instead, device manufacturers could continue using an old root store version (or adopt their own root store label) indefinitely, this is worse for security and worse for website operators who have to handle the increased fragmentation in requirements.
 
-Worse, the utility of Trust Expressions is maximized when trust labels are extremely granular (mapping 1:1 onto client certificate validation behaviour), but this also maximizes the complexity and fragmentation challenges for website operators and CAs.
+As a compounding factor, the utility of Trust Expressions is maximized when trust labels are extremely granular (mapping 1:1 onto client certificate validation behaviour), but this also maximizes the complexity and fragmentation challenges for website operators and CAs.
 
 ## Root Programs and Mass Surveillance
 
@@ -38,14 +40,13 @@ As an author of the Trust Expressions draft [wrote](https://mailarchive.ietf.org
 
 > One of the (unstated, and perhaps we should state it clearer) goals of trust expressions is to allow for new root programs to be created.
 
-These two impacts of Trust Expressions described above are simply a reflection of the fact that governments are the most likely type of actor to exploit this goal/feature for abusive reasons.
+These two impacts of Trust Expressions and Trust Anchors described above are simply a reflection of the fact that governments are the most likely type of actor to exploit this goal/feature for abusive reasons.
 
-It should be clear that both of these concerns are about increasing the probability that governments can successfully establish these kinds of domestic CAs or root programs and have the necessary laws passed by making adoption easier and providing a more desirable end-state.
-This shouldn't be confused with the alternative scenario where these laws are assumed to already exist and then evaluating whether Trust Expressions makes that hypothetical situation worse.
+It should be clear that both of these concerns are about increasing the probability that governments can successfully establish these kinds of domestic CAs or root programs and have the necessary laws passed by making adoption easier and providing a more desirable end-state. This shouldn't be confused with the alternative scenario where these laws are assumed to already exist and then evaluating whether Trust Expressions makes that hypothetical situation worse.
 
 On the mailing list, it has been argued that the existing `certificate_authorities` extension could be exploited by governments for similar reasons. This argument has two shortcomings. Firstly, the `certificate_authorities` extension is not viable for establishing a domestic root program because it does not scale as well as Trust Expressions - a feature the Trust Expression's draft itself identifies.
 
-Secondly, the `certificate_authorities` extension has only ever been implemented in TLS libraries for client certificates, not for server certificates. To my knowledge, no popular client or server TLS library supports the use of `certificate_authorities` to negotiate the certificate offered by the server based on the client's preferences. This is critical because the risks from these technologies arise when they are widely deployed on the web.
+Secondly, the `certificate_authorities` extension has only ever been implemented in TLS libraries for client certificates, not for server certificates. To my knowledge, no popular client or server TLS library supports the use of `certificate_authorities` to negotiate the certificate offered by the server based on the client's preferences. This is critical because the risks from these technologies arise when they are widely deployed on the web. 
 
 No government can force a change a major change to how TLS libraries handle `certificate_authorities` or can force the implementation of Trust Expressions / Trust Anchors without the agreement of a diverse range of stakeholders represented at the IETF - which is why running code and the decisions taken by the IETF matter.
 
@@ -53,6 +54,6 @@ No government can force a change a major change to how TLS libraries handle `cer
 
 Unlike the earlier concerns which apply to both drafts, Trust Expressions and Trust Anchors have quite different properties from a privacy perspective.
 
- Trust Expressions essentially boils down to clients exposing a user agent string which describes the behavior of their certificate validation procedures. At the very least, this will leak the client's root store and how recently it was updated, but may become much more granular depending on the exact implementation, e.g. "Chrome on Android 14.1" vs "Android WebView 14.1" vs "Chromium on Android 14" vs "Brave 124". Exposing this information to the network is a considerable fingerprinting vector for passive observers who would otherwise struggle to distinguish different Chromium derivatives - and even more of a challenge outside the browser ecosystem.
+Trust Expressions essentially boils down to clients exposing a user agent string which describes the behavior of their certificate validation procedures. At the very least, this will leak the client's root store and how recently it was updated, but may become much more granular depending on the exact implementation, e.g. "Chrome on Android 14.1" vs "Android WebView 14.1" vs "Chromium on Android 14" vs "Brave 124". Exposing this information to the network is a considerable fingerprinting vector for passive observers who would otherwise struggle to distinguish different Chromium derivatives - and is even more of a challenge outside the browser ecosystem.
 
-Trust Anchors improves on this design slightly, by having the client only expose the specific trust anchor it wants to use in this particular interaction with a website. However, the true benefits depend heavily on how those trust anchors are described. If the same identifiers are used between different root programs, then the privacy impact would be reduced, but so would the utility of the signal. Otherwise, the same concerns as for Trust Expressions apply.
+Trust Anchors improves on this design slightly, by having the client only expose the specific trust anchor it wants to use in this particular interaction with a website. However, the true benefits depend heavily on how those trust anchors are described. If the same identifiers are used between different root programs, then the privacy impact would be mitigated, but so would the utility of the signal. Otherwise, the same concerns as for Trust Expressions apply.
