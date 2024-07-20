@@ -26,7 +26,7 @@ The first key fact is that all major root programs require that CAs disclose all
 
 This means that an attacker who compromises a root certificate private key actually is unable to attack any client who enforces Certificate Transparency without publicly revealing that the root certificate has been compromised, since they will need to craft a new certificate chain which does not go through a CCADB disclosed intermediate. For this reason, compromising an existing intermediate certificate is actually more valuable to an attacker, and these intermediate keys are already rotated much more frequently.
 
-The second aspect is that both clients and CAs can unilateral rotate these old keys themselves, without the need to coordinate or deploy new technology like Trust Expressions or Trust Anchors.
+The second aspect is that clients and CAs can unilateraly rotate trust in and the usage of these old keys themselves, without the need to coordinate or deploy new technology like Trust Expressions or Trust Anchors.
 
 Clients can withdraw trust in these older root keys by instead selecting their shorter lived intermediate certificates as trust anchors. These intermediates are generated much more frequently and are already widely distributed to browsers via the CCADB. This solution only works for clients that can stay up to date and if they go an extended period without updates, the browser can automatically fallback to trusting the corresponding root certificates. This is similar to existing certificate transparency mechanisms which self-disable after around 8 weeks. Clients that choose to anchor trust in the intermediates and clients that choose to anchor trust in the roots can both consume the same certificate chain without issues.
 
