@@ -18,7 +18,7 @@ I think the most interesting problem that these designs try to tackle is the tra
 
 The first use case described in the proposals is making root key rotation in the WebPKI easier. Currently, the WebPKI has several ~20-year-old root keys which are used to sign shorter lived intermediate certificates. I believe this use-case is actually describing how to achieve a particular solution (key rotation) rather than a problem (clients are trusting keys which are too old and so bad for security).
 
-The proposals describe this as a security risk and propose a new solution. CAs can generate new root certificates, generate two chains corresponding to new and old certificates and then use Trust Expressions or Trust Anchors to negotiate whether to send the new chain (to up-to-date clients) or the old chain (to older clients).
+The proposals describe a new solution. CAs can generate new root certificates, generate two chains corresponding to new and old certificates and then use Trust Expressions or Trust Anchors to negotiate whether to send the new chain (to up-to-date clients) or the old chain (to older clients).
 
 I believe this part of the proposal misses a few key facts about the existing WebPKI, which together mean that root key rotation is fairly unimportant for the security of clients (whereas intermediate certificate key rotation is vital). Seperately, there are existing mechanisms for performing this kind of key rotation which are well used and well understood and seem superior to the designs proposed in the Trust Expressions and Trust Anchors drafts. 
 
