@@ -52,7 +52,7 @@ Further, even if it were the case we needed to make it easier to adopt new CAs, 
 
 ## Removing a CA / Handling Root Program CA Distrusts
 
-From time to time, it emerges that a major CA has misbehaved and one or more Root Programs decide to withdraw trust in that particular CA. An example of these events would be Diginotar in 2011, Symantec in 2016, and Entrust in 2024. The Trust Expressions and Trust Anchors drafts claim that they could alleviate the challenges in managing these large scale distrust events and make them easier to carry out.
+From time to time, it emerges that a CA has misbehaved and one or more Root Programs decide to withdraw trust in that particular CA. When these CAs are small and little-used, this is a relatively painless process, but the situation is more challenging when the CA is popular and/or used by critical infrastructure. An example of these events would be Diginotar in 2011, Symantec in 2016, and Entrust in 2024. The Trust Expressions and Trust Anchors drafts claim that they could alleviate the challenges in managing these large scale distrust events and make them easier to carry out.
 
 There are several issues with this argument. Firstly, the frequency of events of this magnitude is extremely low and around the order of one per decade. This means the magnitude of the benefit that Trust Expressions could deliver is already quite limited. We now have to look more closely at what can make these events difficult to carry out from the perspective of root store operators to understand the sources of the pain and why these proposals won’t help.
 
